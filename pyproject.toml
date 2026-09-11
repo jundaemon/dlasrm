@@ -1,0 +1,33 @@
+[project]
+name = "dlasrm"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Jun Wei", email = "junweilee72@gmail.com" }
+]
+requires-python = ">=3.11.15"
+dependencies = [
+    "matplotlib>=3.11.1",
+    "numba>=0.67.0",
+    "numpy>=2.4.6",
+    "scikit-learn>=1.9.1",
+    "torch>=2.6.0",
+]
+
+[project.scripts]
+dlasrm = "dlasrm:main"
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-gpu" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-gpu"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
