@@ -20,8 +20,8 @@ from dlasrm.evaluation import MAE, plot_landscape
 from dlasrm.simulation import input_gen
 
 if __name__ == "__main__":
-    n_array = np.arange(500, 2_001, 500, dtype=np.int64)
-    mae_array = np.empty(len(n_array), dtype=np.float64)
+    n_array = np.arange(500, 50_001, 500)
+    mae_array = np.empty(len(n_array))
 
     for i, n in enumerate(n_array):
         print(f"\ninputs n: {n}")
@@ -67,7 +67,7 @@ if __name__ == "__main__":
             early_stopping_rounds=5,
             delta=0.0005,
         )
-        _, _ = architecture.train(train_loader, validation_loader)
+        _ = architecture.train(train_loader, validation_loader)
         mae_array[i] = architecture.evaluate(X_test, y_test)
 
     plot_landscape(n_array, mae_array, "mae", "results/landscape.png")

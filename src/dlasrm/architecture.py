@@ -107,15 +107,18 @@ class Architecture:
                         break
 
         self.model.load_state_dict(best_weights)
-        return train_metrics[:i+1], validation_metrics[:i+1] # type: ignore
+        return train_metrics[:i+1], validation_metrics[:i+1]
 
     def save_model(self, path: str) -> None:
         save(self.model.state_dict(), path)
 
     def evaluate(self, X_test: Tensor, y_test: Tensor) -> float:
+        X_test_dev = X_test.to(self.device)
+        y_test_dev = y_test.to(self.device)
+
         self.model.eval()
         with torch.no_grad():
-            pred = self.model(X_test).squeeze(-1).detach()
-            actual = y_test.detach()
+            pred = self.model(X_test_dev).squeeze(-1).detach()
+            actual = y_test_dev.detach()
 
             return self.eval_metric.calc(pred, actual)
