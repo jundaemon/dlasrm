@@ -1,5 +1,7 @@
+from importlib import import_module
+
 import numpy as np
-from torch.nn import Conv1d, Flatten, Linear, MaxPool1d, MSELoss, ReLU, Sequential
+from torch.nn import MSELoss
 from torch.optim import AdamW
 
 from dlasrm import (
@@ -18,6 +20,9 @@ from dlasrm.architecture import Architecture
 from dlasrm.data import modify_samples, preprocess_data, retrieve_samples
 from dlasrm.evaluation import MAE, plot_landscape
 from dlasrm.simulation import input_gen
+
+lenet = import_module("1d_lenet")
+
 
 if __name__ == "__main__":
     n_array = np.arange(500, 50_001, 500)
@@ -39,20 +44,7 @@ if __name__ == "__main__":
         X, y = retrieve_samples(DB_NAME, TOTAL_SAMPLES, BINS)
         train_loader, validation_loader, X_test, y_test = preprocess_data(X, y)
 
-        model = Sequential(
-            Conv1d(1, 6, 5),
-            ReLU(),
-            MaxPool1d(2, 2),
-            Conv1d(6, 16, 5),
-            ReLU(),
-            MaxPool1d(2, 2),
-            Flatten(),
-            Linear(1_952, 84),
-            ReLU(),
-            Linear(84, 10),
-            ReLU(),
-            Linear(10, 1),
-        )
+        model = lenet.create_model()
         model.to(DEVICE)
         architecture = Architecture(
             model,

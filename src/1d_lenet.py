@@ -10,14 +10,8 @@ from dlasrm.data import preprocess_data, retrieve_samples, seed_training_env
 from dlasrm.evaluation import MAE, plot_results
 
 
-def objective(
-    trial: Trial, train_loader: DataLoader, validation_loader: DataLoader
-) -> float:
-    seed_training_env(1)
-    learning_rate = trial.suggest_float("lr", 1e-5, 0.1, log=True)
-    weight_decay = trial.suggest_float("weight_decay", 1e-5, 0.01, log=True)
-
-    model = Sequential(
+def create_model() -> Sequential:
+    return Sequential(
         Conv1d(1, 6, 5),
         ReLU(),
         MaxPool1d(2, 2),
@@ -31,6 +25,16 @@ def objective(
         ReLU(),
         Linear(10, 1),
     )
+
+
+def objective(
+    trial: Trial, train_loader: DataLoader, validation_loader: DataLoader
+) -> float:
+    seed_training_env(1)
+    learning_rate = trial.suggest_float("lr", 1e-5, 0.1, log=True)
+    weight_decay = trial.suggest_float("weight_decay", 1e-5, 0.01, log=True)
+
+    model = create_model()
     model.to(DEVICE)
     architecture = Architecture(
         model,
@@ -63,20 +67,7 @@ if __name__ == "__main__":
     print(f"lowest mae: {study.best_value}")
 
     seed_training_env(1)
-    model = Sequential(
-            Conv1d(1, 6, 5),
-            ReLU(),
-            MaxPool1d(2, 2),
-            Conv1d(6, 16, 5),
-            ReLU(),
-            MaxPool1d(2, 2),
-            Flatten(),
-            Linear(1_952, 84),
-            ReLU(),
-            Linear(84, 10),
-            ReLU(),
-            Linear(10, 1),
-        )
+    model = create_model()
     model.to(DEVICE)
     architecture = Architecture(
         model,
