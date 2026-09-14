@@ -1,11 +1,50 @@
+from abc import ABC, abstractmethod
+
 import numpy as np
 from matplotlib import pyplot as plt
 from numpy.typing import NDArray
 from torch import Tensor
+from typing_extensions import override
 
 
-def mean_absolute_error(predicted: Tensor, expected: Tensor) -> float:
-    return (expected - predicted).abs().mean().item()
+class EvalMetric(ABC):
+    @staticmethod
+    @abstractmethod
+    def calc(predicted: Tensor, expected: Tensor) -> float:
+        raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
+    def is_best(array: NDArray[np.float64], curr: float) -> bool:
+        raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
+    def patience_gate(prev: float, curr: float, delta: float, patience: int) -> int:
+        raise NotImplementedError
+
+
+class MAE(EvalMetric):
+    @staticmethod
+    @override
+    def calc(predicted: Tensor, expected: Tensor) -> float:
+        return (expected - predicted).abs().mean().item()
+
+    @staticmethod
+    @override
+    def is_best(array: NDArray[np.float64], curr: float) -> bool:
+        if array.max() == curr:
+            return True
+
+        return False
+
+    @staticmethod
+    @override
+    def patience_gate(prev: float, curr: float, delta: float, patience: int) -> int:
+        if prev < curr or prev - curr < delta:
+            return patience + 1
+
+        return 0
 
 
 def plot_results(

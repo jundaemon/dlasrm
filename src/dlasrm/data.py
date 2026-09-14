@@ -130,3 +130,18 @@ def create_loader(X: NDArray[np.float32], y: NDArray[np.float32]) -> DataLoader:
         shuffle=True,
         pin_memory=True,
     )
+
+
+def preprocess_data(
+    X: NDArray[np.float32], y: NDArray[np.float32]
+) -> tuple[DataLoader, DataLoader, Tensor, Tensor]:
+    X_train, y_train, X_validation, y_validation, X_test, y_test = (
+        train_validation_test_split(X, y, 0.15, 0.15)
+    )
+
+    train_loader = create_loader(X_train, y_train)
+    validation_loader = create_loader(X_validation, y_validation)
+
+    X_test, y_test = convert_to_tensors(X_test, y_test)
+
+    return train_loader, validation_loader, X_test, y_test
