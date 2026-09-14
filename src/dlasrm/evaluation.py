@@ -33,10 +33,7 @@ class MAE(EvalMetric):
     @staticmethod
     @override
     def is_best(array: NDArray[np.float64], curr: float) -> bool:
-        if array.max() == curr:
-            return True
-
-        return False
+        return array.min() >= curr
 
     @staticmethod
     @override

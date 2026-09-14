@@ -107,7 +107,7 @@ class Architecture:
                         break
 
         self.model.load_state_dict(best_weights)
-        return train_metrics, validation_metrics
+        return train_metrics[:i+1], validation_metrics[:i+1] # type: ignore
 
     def save_model(self, path: str) -> None:
         save(self.model.state_dict(), path)
