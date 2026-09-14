@@ -13,6 +13,7 @@ from dlasrm.evaluation import MAE
 def objective(
     trial: Trial, train_loader: DataLoader, validation_loader: DataLoader
 ) -> float:
+    seed_training_env(1)
     learning_rate = trial.suggest_float("lr", 1e-5, 0.1, log=True)
     weight_decay = trial.suggest_float("weight_decay", 1e-5, 0.01, log=True)
 
@@ -42,12 +43,10 @@ def objective(
     )
     _, validation_mae = architecture.train(train_loader, validation_loader)
 
-    return validation_mae.max()
+    return validation_mae.min()
 
 
 if __name__ == "__main__":
-    seed_training_env(1)
-
     X, y = retrieve_samples(DB_NAME, TOTAL_SAMPLES, BINS)
     train_loader, validation_loader, X_test, y_test = preprocess_data(X, y)
 
