@@ -65,3 +65,20 @@ def plot_results(
     plt.grid(True)
     plt.savefig(path)
     plt.close("all")
+
+
+def plot_landscape(
+    n_array: NDArray[np.int64],
+    metric_array: NDArray[np.float64],
+    metric: str,
+    path: str,
+) -> None:
+    plt.plot(n_array, metric_array)
+
+    plt.title(f"n - {metric}")
+    plt.xlabel("n")
+    plt.ylabel(metric)
+
+    plt.grid(True)
+    plt.savefig(path)
+    plt.close("all")

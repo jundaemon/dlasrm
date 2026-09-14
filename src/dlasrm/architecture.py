@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from numpy.typing import NDArray
-from torch import device, no_grad, save
+from torch import Tensor, device, no_grad, save
 from torch.nn import Sequential
 from torch.nn.modules.loss import _Loss
 from torch.optim.optimizer import Optimizer
@@ -111,3 +111,11 @@ class Architecture:
 
     def save_model(self, path: str) -> None:
         save(self.model.state_dict(), path)
+
+    def evaluate(self, X_test: Tensor, y_test: Tensor) -> float:
+        self.model.eval()
+        with torch.no_grad():
+            pred = self.model(X_test).squeeze(-1).detach()
+            actual = y_test.detach()
+
+            return self.eval_metric.calc(pred, actual)
