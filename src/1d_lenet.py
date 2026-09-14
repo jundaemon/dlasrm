@@ -38,7 +38,8 @@ def objective(
         MSELoss(),
         AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay),
         MAE(),
-        early_stopping_rounds=10,
+        30,
+        early_stopping_rounds=5,
         delta=0.0005,
     )
     _, validation_mae = architecture.train(train_loader, validation_loader)
@@ -71,7 +72,8 @@ if __name__ == "__main__":
         MSELoss(),
         AdamW(model.parameters()),
         MAE(),
-        early_stopping_rounds=10,
+        30,
+        early_stopping_rounds=5,
         delta=0.0005,
     )
     train_mae, validation_mae = architecture.train(train_loader, validation_loader)

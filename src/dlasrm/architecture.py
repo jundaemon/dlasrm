@@ -18,7 +18,7 @@ class Architecture:
         loss_fn: _Loss,
         optimizer: Optimizer,
         eval_metric: EvalMetric,
-        epochs: int = 100,
+        epochs: int,
         early_stopping_rounds: int = 0,
         delta: float = 0.0,
         device: device = DEVICE,
@@ -88,11 +88,12 @@ class Architecture:
                 )
                 validation_metrics[i] = curr_validation
 
-                print(f"epoch {1 + i}")
+                print(f"\nepoch {1 + i}")
                 print(f"train: {curr_train}")
-                print(f"validation: {curr_validation}\n")
+                print(f"validation: {curr_validation}")
 
                 if i == 0:
+                    print(f"patience: {patience}")
                     continue
 
                 if self.eval_metric.is_best(validation_metrics, curr_validation):
@@ -102,6 +103,7 @@ class Architecture:
                     patience = self.eval_metric.patience_gate(
                         validation_metrics[i - 1], curr_validation, self.delta, patience
                     )
+                    print(f"patience: {patience}")
                     if patience >= self.early_stopping_rounds:
                         break
 

@@ -81,7 +81,7 @@ def retrieve_samples(
     labels = np.empty(rows, dtype=np.float32)
     for i, row in enumerate(cursor.execute("SELECT input, label FROM samples;")):
         inputs[i] = np.frombuffer(row[0], dtype=np.float32)
-        labels[i] = row[1]
+        labels[i] = np.frombuffer(row[1], dtype=np.float32)[0]
 
     conn.close()
     return inputs, labels
