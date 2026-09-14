@@ -1,10 +1,16 @@
 import sqlite3
 
 import numpy as np
+import torch
 from numpy.typing import NDArray
 from sklearn.model_selection import train_test_split
 from torch import Tensor, from_numpy
 from torch.utils.data import DataLoader, TensorDataset
+
+
+def seed_training_env(state: int) -> None:
+    torch.manual_seed(state)
+    torch.cuda.manual_seed(state)
 
 
 def create_database(name: str) -> None:

@@ -93,7 +93,6 @@ class Architecture:
                 print(f"validation: {curr_validation}")
 
                 if i == 0:
-                    print(f"patience: {patience}")
                     continue
 
                 if self.eval_metric.is_best(validation_metrics, curr_validation):
