@@ -21,7 +21,7 @@ from dlasrm.data import modify_samples, preprocess_data, retrieve_samples
 from dlasrm.evaluation import MAE, plot_landscape
 from dlasrm.simulation import input_gen
 
-lenet = import_module("1d_lenet")
+lenet = import_module("1d_lenet_tuning")
 
 
 if __name__ == "__main__":
@@ -53,11 +53,7 @@ if __name__ == "__main__":
         architecture = Architecture(
             modules=model,
             loss_fn=MSELoss(),
-            optimizer=AdamW(
-                params=model.parameters(),
-                lr=0.0001677022202319308,
-                weight_decay=0.00012444477787113697,
-            ),
+            optimizer=AdamW(params=model.parameters()),
             eval_metric=MAE(),
             epochs=100,
             early_stopping_rounds=10,
