@@ -20,4 +20,10 @@ if __name__ == "__main__":
         ).astype(np.float32)
         print(f"seed: {seed}, inputs shape: {inputs.shape}")
 
-        modify_samples(DB_NAME, np.repeat(seed, len(EFF_1S)), EFF_1S, EFF_2S, inputs)
+        modify_samples(
+            name=DB_NAME,
+            seeds=np.repeat(seed, len(EFF_1S)),
+            eff_1s=EFF_1S,
+            eff_2s=EFF_2S,
+            X=inputs,
+        )

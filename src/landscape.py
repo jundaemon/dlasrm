@@ -38,28 +38,37 @@ if __name__ == "__main__":
             print(f"seed: {seed}, inputs shape: {inputs.shape}")
 
             modify_samples(
-                DB_NAME, np.repeat(seed, len(EFF_1S)), EFF_1S, EFF_2S, inputs
+                name=DB_NAME,
+                seeds=np.repeat(seed, len(EFF_1S)),
+                eff_1s=EFF_1S,
+                eff_2s=EFF_2S,
+                X=inputs,
             )
 
-        X, y = retrieve_samples(DB_NAME, TOTAL_SAMPLES, BINS)
+        X, y = retrieve_samples(name=DB_NAME, rows=TOTAL_SAMPLES, cols=BINS)
         train_loader, validation_loader, X_test, y_test = preprocess_data(X, y)
 
         model = lenet.create_model()
         model.to(DEVICE)
         architecture = Architecture(
-            model,
-            MSELoss(),
-            AdamW(
-                model.parameters(),
+            modules=model,
+            loss_fn=MSELoss(),
+            optimizer=AdamW(
+                params=model.parameters(),
                 lr=0.0001677022202319308,
                 weight_decay=0.00012444477787113697,
             ),
-            MAE(),
-            30,
-            early_stopping_rounds=5,
+            eval_metric=MAE(),
+            epochs=100,
+            early_stopping_rounds=10,
             delta=0.0005,
         )
         _ = architecture.train(train_loader, validation_loader)
         mae_array[i] = architecture.evaluate(X_test, y_test)
 
-    plot_landscape(n_array, mae_array, "mae", "results/landscape.png")
+    plot_landscape(
+        n_array=n_array,
+        metric_array=mae_array,
+        metric="mae",
+        path="results/landscape.png",
+    )

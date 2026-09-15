@@ -37,11 +37,13 @@ def objective(
     model = create_model()
     model.to(DEVICE)
     architecture = Architecture(
-        model,
-        MSELoss(),
-        AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay),
-        MAE(),
-        30,
+        modules=model,
+        loss_fn=MSELoss(),
+        optimizer=AdamW(
+            model.parameters(), lr=learning_rate, weight_decay=weight_decay
+        ),
+        eval_metric=MAE(),
+        epochs=30,
         early_stopping_rounds=5,
         delta=0.0005,
     )
@@ -51,11 +53,14 @@ def objective(
 
 
 if __name__ == "__main__":
-    X, y = retrieve_samples(DB_NAME, TOTAL_SAMPLES, BINS)
+    X, y = retrieve_samples(name=DB_NAME, rows=TOTAL_SAMPLES, cols=BINS)
     train_loader, validation_loader, X_test, y_test = preprocess_data(X, y)
 
     study = create_study(direction="minimize")
-    study.optimize(lambda trial: objective(trial, train_loader, validation_loader), 30)
+    study.optimize(
+        func=lambda trial: objective(trial, train_loader, validation_loader),
+        n_trials=30,
+    )
     best_lr = study.best_params["lr"]
     best_weight_decay = study.best_params["weight_decay"]
 
@@ -70,17 +75,24 @@ if __name__ == "__main__":
     model = create_model()
     model.to(DEVICE)
     architecture = Architecture(
-        model,
-        MSELoss(),
-        AdamW(model.parameters(), lr=best_lr, weight_decay=best_weight_decay),
-        MAE(),
-        30,
+        modules=model,
+        loss_fn=MSELoss(),
+        optimizer=AdamW(
+            params=model.parameters(), lr=best_lr, weight_decay=best_weight_decay
+        ),
+        eval_metric=MAE(),
+        epochs=30,
         early_stopping_rounds=5,
         delta=0.0005,
     )
     train_mae, validation_mae = architecture.train(train_loader, validation_loader)
 
-    plot_results(train_mae, validation_mae, "mae", "results/1d_lenet.png")
+    plot_results(
+        train_arr=train_mae,
+        validation_arr=validation_mae,
+        metric="mae",
+        path="results/1d_lenet.png",
+    )
     print(f"\ntest mae: {architecture.evaluate(X_test, y_test)}")
     # test mae: 0.009782887995243073
-    architecture.save_model("weights/1d_lenet.pth")
+    architecture.save_model(path="weights/1d_lenet.pth")

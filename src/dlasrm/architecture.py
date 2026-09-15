@@ -107,7 +107,7 @@ class Architecture:
                         break
 
         self.model.load_state_dict(best_weights)
-        return train_metrics[:i+1], validation_metrics[:i+1]
+        return train_metrics[: i + 1], validation_metrics[: i + 1]
 
     def save_model(self, path: str) -> None:
         save(self.model.state_dict(), path)
@@ -117,7 +117,7 @@ class Architecture:
         y_test_dev = y_test.to(self.device)
 
         self.model.eval()
-        with torch.no_grad():
+        with no_grad():
             pred = self.model(X_test_dev).squeeze(-1).detach()
             actual = y_test_dev.detach()
 
