@@ -66,3 +66,6 @@ if __name__ == "__main__":
     print(f"best learning rate: {study.best_params['lr']}")
     print(f"best weight decay: {study.best_params['weight_decay']}")
     print(f"lowest mae: {study.best_value}")
+    # best learning rate: 8.377048300834437e-05
+    # best weight decay: 0.004317826062910638
+    # lowest mae: 0.009676404297351837

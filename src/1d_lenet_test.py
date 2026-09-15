@@ -21,7 +21,11 @@ if __name__ == "__main__":
     architecture = Architecture(
         modules=model,
         loss_fn=MSELoss(),
-        optimizer=AdamW(params=model.parameters()),
+        optimizer=AdamW(
+            params=model.parameters(),
+            lr=8.377048300834437e-05,
+            weight_decay=0.004317826062910638,
+        ),
         eval_metric=MAE(),
         epochs=100,
         early_stopping_rounds=10,
@@ -36,4 +40,5 @@ if __name__ == "__main__":
         path="results/1d_lenet.png",
     )
     print(f"\ntest mae: {architecture.evaluate(X_test, y_test)}")
+    # test mae: 0.009812440723180771
     architecture.save_model(path="weights/1d_lenet.pth")
