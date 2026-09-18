@@ -1,8 +1,7 @@
-from importlib import import_module
-
+import cupy as cp
 import numpy as np
-from torch.nn import MSELoss
-from torch.optim import AdamW
+from sklearn.metrics import mean_absolute_error
+from xgboost import XGBRegressor
 
 from dlasrm import (
     BINS,
@@ -16,13 +15,13 @@ from dlasrm import (
     T_NS,
     TOTAL_SAMPLES,
 )
-from dlasrm.architecture import Architecture
-from dlasrm.data import modify_samples, preprocess_data, retrieve_samples
-from dlasrm.evaluation import MAE, plot_landscape
+from dlasrm.data import (
+    modify_samples,
+    retrieve_samples,
+    train_validation_test_split,
+)
+from dlasrm.evaluation import plot_landscape
 from dlasrm.simulation import input_gen
-
-lenet = import_module("1d_lenet_tuning")
-
 
 if __name__ == "__main__":
     n_array = np.arange(500, 50_001, 500)
@@ -46,21 +45,28 @@ if __name__ == "__main__":
             )
 
         X, y = retrieve_samples(name=DB_NAME, rows=TOTAL_SAMPLES, cols=BINS)
-        train_loader, validation_loader, X_test, y_test = preprocess_data(X, y)
-
-        model = lenet.create_model()
-        model.to(DEVICE)
-        architecture = Architecture(
-            modules=model,
-            loss_fn=MSELoss(),
-            optimizer=AdamW(params=model.parameters()),
-            eval_metric=MAE(),
-            epochs=100,
-            early_stopping_rounds=10,
-            delta=0.0005,
+        X_train, y_train, X_validation, y_validation, X_test, y_test = (
+            train_validation_test_split(X, y, validation_ratio=0.15, test_ratio=0.15)
         )
-        _ = architecture.train(train_loader, validation_loader)
-        mae_array[i] = architecture.evaluate(X_test, y_test)
+        X_test = cp.asarray(X_test)
+
+        model = XGBRegressor(
+            objective="reg:squarederror",
+            tree_method="hist",
+            eval_metric=mean_absolute_error,
+            early_stopping_rounds=10,
+            n_estimators=2890,
+            learning_rate=0.009651414673966265,
+            max_depth=10,
+            subsample=0.7,
+            colsample_bytree=0.7,
+            device=DEVICE,
+            random_state=1,
+        )
+        trees = model.fit(X_train, y_train, eval_set=[(X_validation, y_validation)])
+
+        pred = trees.predict(X_test)
+        mae_array[i] = mean_absolute_error(y_test, pred)
 
     plot_landscape(
         n_array=n_array,
