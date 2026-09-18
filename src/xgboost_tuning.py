@@ -35,8 +35,8 @@ def objective(
         random_state=1,
     )
     trees = model.fit(X_train, y_train)
-    pred = trees.predict(X_validation)
 
+    pred = trees.predict(X_validation)
     return mean_absolute_error(y_validation, pred)
 
 

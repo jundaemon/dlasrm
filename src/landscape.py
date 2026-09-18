@@ -15,11 +15,7 @@ from dlasrm import (
     T_NS,
     TOTAL_SAMPLES,
 )
-from dlasrm.data import (
-    modify_samples,
-    retrieve_samples,
-    train_validation_test_split,
-)
+from dlasrm.data import modify_samples, retrieve_samples, train_validation_test_split
 from dlasrm.evaluation import plot_landscape
 from dlasrm.simulation import input_gen
 
