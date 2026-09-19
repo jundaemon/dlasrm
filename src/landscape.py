@@ -20,7 +20,7 @@ from dlasrm.evaluation import plot_landscape
 from dlasrm.simulation import input_gen
 
 if __name__ == "__main__":
-    n_array = np.arange(500, 50_001, 500)
+    n_array = np.arange(500, 75_001, 500)
     mae_array = np.empty(len(n_array))
 
     for i, n in enumerate(n_array):
