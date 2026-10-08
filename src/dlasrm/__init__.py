@@ -15,3 +15,4 @@ SEEDS = seed_gen(121)
 TOTAL_SAMPLES = len(EFF_1S) * len(SEEDS)
 DEVICE = "cuda"
 DB_NAME = "samples.db"
+BATCH_SIZE = 64

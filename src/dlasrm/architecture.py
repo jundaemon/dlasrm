@@ -4,7 +4,7 @@ from numpy.typing import NDArray
 from optuna import TrialPruned
 from optuna.trial import Trial
 from torch import Tensor, no_grad, save
-from torch.nn import Sequential
+from torch.nn import Module, Sequential
 from torch.nn.modules.loss import _Loss
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader
@@ -113,3 +113,9 @@ class Architecture:
             actual = y_test_dev.detach()
 
             return self.eval_metric.calc(pred, actual)
+
+
+class LSTMBridge(Module):
+    def forward(self, lstm_out: tuple[Tensor, tuple[Tensor, Tensor]]) -> Tensor:
+        out, _ = lstm_out
+        return out[:, -1, :]

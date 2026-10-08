@@ -7,6 +7,8 @@ from sklearn.model_selection import train_test_split
 from torch import Tensor, from_numpy
 from torch.utils.data import DataLoader, TensorDataset
 
+from dlasrm import BATCH_SIZE
+
 
 def seed_training_env(state: int) -> None:
     torch.manual_seed(state)
@@ -132,7 +134,7 @@ def create_loader(X: NDArray[np.float32], y: NDArray[np.float32]) -> DataLoader:
 
     return DataLoader(
         dataset=TensorDataset(X_tensor, y_tensor),
-        batch_size=64,
+        batch_size=BATCH_SIZE,
         shuffle=True,
         pin_memory=True,
     )
