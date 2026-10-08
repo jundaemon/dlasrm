@@ -33,6 +33,7 @@ def objective(
     seed_training_env(1)
     learning_rate = trial.suggest_float("lr", 1e-5, 0.1, log=True)
     weight_decay = trial.suggest_float("weight_decay", 1e-5, 0.01, log=True)
+    epochs = trial.suggest_int("epochs", 10, 100)
 
     model = create_model()
     model.to(DEVICE)
@@ -43,13 +44,16 @@ def objective(
             model.parameters(), lr=learning_rate, weight_decay=weight_decay
         ),
         eval_metric=MAE(),
-        epochs=100,
-        early_stopping_rounds=10,
-        delta=0.0005,
+        epochs=epochs,
     )
-    _, validation_mae = architecture.train(train_loader, validation_loader)
+    _, validation_mae = architecture.train(
+        train_loader=train_loader,
+        validation_loader=validation_loader,
+        tuning=True,
+        trial=trial,
+    )
 
-    return validation_mae.min()
+    return validation_mae[-1]
 
 
 if __name__ == "__main__":
@@ -59,13 +63,11 @@ if __name__ == "__main__":
     study = create_study(direction="minimize")
     study.optimize(
         func=lambda trial: objective(trial, train_loader, validation_loader),
-        n_trials=30,
+        n_trials=50,
     )
 
     print("\nstudy results")
     print(f"best learning rate: {study.best_params['lr']}")
     print(f"best weight decay: {study.best_params['weight_decay']}")
+    print(f"best number of epochs: {study.best_params['epochs']}")
     print(f"lowest mae: {study.best_value}")
-    # best learning rate: 8.377048300834437e-05
-    # best weight decay: 0.004317826062910638
-    # lowest mae: 0.009676404297351837

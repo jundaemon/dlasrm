@@ -1,7 +1,9 @@
 import numpy as np
 import torch
 from numpy.typing import NDArray
-from torch import Tensor, device, no_grad, save
+from optuna import TrialPruned
+from optuna.trial import Trial
+from torch import Tensor, no_grad, save
 from torch.nn import Sequential
 from torch.nn.modules.loss import _Loss
 from torch.optim.optimizer import Optimizer
@@ -19,29 +21,26 @@ class Architecture:
         optimizer: Optimizer,
         eval_metric: EvalMetric,
         epochs: int,
-        early_stopping_rounds: int = 0,
-        delta: float = 0.0,
-        device: device = DEVICE,
+        device: str = DEVICE,
     ) -> None:
         self.model = modules
         self.loss_fn = loss_fn
         self.optimizer = optimizer
         self.eval_metric = eval_metric
         self.epochs = epochs
-        self.early_stopping_rounds = early_stopping_rounds
-        self.delta = delta
         self.device = device
 
     def train(
-        self, train_loader: DataLoader, validation_loader: DataLoader
+        self,
+        train_loader: DataLoader,
+        validation_loader: DataLoader,
+        tuning: bool = False,
+        trial: Trial | None = None,
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         train_length = len(train_loader.dataset)  # type: ignore
         validation_length = len(validation_loader.dataset)  # type: ignore
         train_metrics = np.empty(self.epochs)
         validation_metrics = np.empty(self.epochs)
-
-        best_weights = self.model.state_dict()
-        patience = 0
 
         for i in range(self.epochs):
             train_predicted = torch.empty(train_length, device=self.device)
@@ -92,21 +91,13 @@ class Architecture:
                 print(f"train: {curr_train}")
                 print(f"validation: {curr_validation}")
 
-                if i == 0:
-                    continue
+                if tuning:
+                    assert isinstance(trial, Trial)
 
-                if self.eval_metric.is_best(validation_metrics, curr_validation):
-                    best_weights = self.model.state_dict()
+                    trial.report(curr_validation, i)
+                    if trial.should_prune():
+                        raise TrialPruned()
 
-                if self.early_stopping_rounds != 0:
-                    patience = self.eval_metric.patience_gate(
-                        validation_metrics[i - 1], curr_validation, self.delta, patience
-                    )
-                    print(f"patience: {patience}")
-                    if patience >= self.early_stopping_rounds:
-                        break
-
-        self.model.load_state_dict(best_weights)
         return train_metrics[: i + 1], validation_metrics[: i + 1]
 
     def save_model(self, path: str) -> None:
