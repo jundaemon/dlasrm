@@ -12,18 +12,18 @@ if __name__ == "__main__":
     train_loader, validation_loader, X_test, y_test = preprocess_data(X, y)
 
     seed_training_env(1)
-    model = create_model()
+    model = create_model(hidden_size=1_024, num_layers=3)
     model.to(DEVICE)
     architecture = Architecture(
         modules=model,
         loss_fn=MSELoss(),
         optimizer=AdamW(
             params=model.parameters(),
-            lr=0,
-            weight_decay=0,
+            lr=1.3e-5,
+            weight_decay=1.9e-5,
         ),
         eval_metric=MAE(),
-        epochs=0,
+        epochs=62,
     )
     train_mae, validation_mae = architecture.train(train_loader, validation_loader)
 
@@ -35,3 +35,4 @@ if __name__ == "__main__":
     )
     print(f"\ntest mae: {architecture.evaluate(X_test, y_test)}")
     architecture.save_model(path="weights/lstm.pth")
+    # test mae: 0.009873180650174618

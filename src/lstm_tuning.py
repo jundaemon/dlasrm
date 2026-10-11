@@ -53,7 +53,7 @@ def objective(
         trial=trial,
     )
 
-    return validation_mae.max()
+    return validation_mae.min()
 
 
 if __name__ == "__main__":
@@ -73,3 +73,10 @@ if __name__ == "__main__":
     print(f"best num_layers: {study.best_params['num_layers']}")
     print(f"best number of epochs: {study.best_params['epochs']}")
     print(f"lowest mae: {study.best_value}")
+    # study results
+    # best learning rate: 1.2670854628207467e-05
+    # best weight decay: 1.8843499597364298e-05
+    # best hidden_size: 1_024
+    # best num_layers: 3
+    # best number of epochs: 88
+    # lowest mae: 0.0098356232047081

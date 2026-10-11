@@ -103,16 +103,17 @@ class Architecture:
     def save_model(self, path: str) -> None:
         save(self.model.state_dict(), path)
 
-    def evaluate(self, X_test: Tensor, y_test: Tensor) -> float:
-        X_test_dev = X_test.to(self.device)
-        y_test_dev = y_test.to(self.device)
-
+    def evaluate(self, X_test: Tensor, y_test: Tensor, batch_size: int = 128) -> float:
+        preds = []
         self.model.eval()
         with no_grad():
-            pred = self.model(X_test_dev).squeeze(-1).detach()
-            actual = y_test_dev.detach()
+            for i in range(0, len(X_test), batch_size):
+                batch_X = X_test[i : i + batch_size].to(self.device)
+                batch_pred = self.model(batch_X).squeeze(-1)
+                preds.append(batch_pred.cpu())
+        pred = torch.cat(preds)
 
-            return self.eval_metric.calc(pred, actual)
+        return self.eval_metric.calc(pred, y_test)
 
 
 class LSTMBridge(Module):
