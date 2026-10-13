@@ -14,35 +14,12 @@ class EvalMetric(ABC):
     def calc(predicted: Tensor, expected: Tensor) -> float:
         raise NotImplementedError
 
-    @staticmethod
-    @abstractmethod
-    def is_best(array: NDArray[np.float64], curr: float) -> bool:
-        raise NotImplementedError
-
-    @staticmethod
-    @abstractmethod
-    def patience_gate(prev: float, curr: float, delta: float, patience: int) -> int:
-        raise NotImplementedError
-
 
 class MAE(EvalMetric):
     @staticmethod
     @override
     def calc(predicted: Tensor, expected: Tensor) -> float:
         return (expected - predicted).abs().mean().item()
-
-    @staticmethod
-    @override
-    def is_best(array: NDArray[np.float64], curr: float) -> bool:
-        return array.min() >= curr
-
-    @staticmethod
-    @override
-    def patience_gate(prev: float, curr: float, delta: float, patience: int) -> int:
-        if prev < curr or prev - curr < delta:
-            return patience + 1
-
-        return 0
 
 
 def plot_results(
