@@ -7,7 +7,6 @@ from dlasrm.simulation import calculate_g20
 
 if __name__ == "__main__":
     X, y = retrieve_samples(name=DB_NAME, rows=TOTAL_SAMPLES, cols=BINS)
-    print(len(X))
     pred = np.empty(len(X), dtype=np.float32)
     for i, hist in enumerate(X):
         pred[i] = calculate_g20(hist.astype(np.int64), T_NS)
