@@ -9,6 +9,7 @@ from dlasrm import (
     LIFETIME_NS,
     SEEDS,
     T_NS,
+    PUlSE_WIDTH_NS,
 )
 from dlasrm.data import modify_samples
 from dlasrm.simulation import input_gen
@@ -16,7 +17,15 @@ from dlasrm.simulation import input_gen
 if __name__ == "__main__":
     for seed in SEEDS:
         inputs = input_gen(
-            4_000, T_NS, LIFETIME_NS, EFF_1S, EFF_2S, HALF_INT_NS, BINS, seed
+            4_000,
+            PUlSE_WIDTH_NS,
+            T_NS,
+            LIFETIME_NS,
+            EFF_1S,
+            EFF_2S,
+            HALF_INT_NS,
+            BINS,
+            seed,
         ).astype(np.float32)
         print(f"seed: {seed}, inputs shape: {inputs.shape}")
 

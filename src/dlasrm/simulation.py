@@ -26,19 +26,27 @@ def seed_gen(size: int) -> NDArray[np.int64]:
     return seeds
 
 
-@njit(nb.float64[:](nb.int64, nb.float64, nb.float64, nb.float64))
+@njit(nb.float64[:](nb.int64, nb.float64, nb.float64, nb.float64, nb.float64))
 def calculate_arrival_times(
-    n: int, T_ns: float, eff: float, lifetime_ns: float
+    n: int, pulse_width_ns: float, T_ns: float, eff: float, lifetime_ns: float
 ) -> NDArray[np.float64]:
-    dur = np.log(np.random.random(n)) * -lifetime_ns
+    emiss_dur = np.log(np.random.random(n)) * -lifetime_ns
+    temp = np.where(emiss_dur <= pulse_width_ns, 1, 0)
+    noise_dur = np.log(np.where(temp == 1, np.random.random(n), 1)) * -lifetime_ns
+
     if eff == 1:
-        return np.arange(1, n + 1) * T_ns + dur
+        steps = np.arange(1, n + 1, dtype=np.float64)
     else:
-        return (
-            np.cumsum(np.floor(np.log(np.random.random(n)) / np.log(1 - eff)) + 1)
-            * T_ns
-            + dur
+        steps = np.cumsum(
+            np.floor(np.log(np.random.random(n)) / np.log(1 - eff)) + 1,
+            dtype=np.float64,
         )
+
+    emiss_time = steps * T_ns + emiss_dur
+    temp_time = steps * temp * T_ns + noise_dur
+    noise_time = temp_time[temp_time != 0]
+
+    return np.sort(np.concat((emiss_time, noise_time)))
 
 
 @njit(Tuple((nb.float64[:], nb.float64[:]))(nb.float64[:], nb.float64[:]))
@@ -131,6 +139,7 @@ def calculate_g20(hist: NDArray[np.int64], bpp: float) -> float:
         nb.int64,
         nb.float64,
         nb.float64,
+        nb.float64,
         nb.float64[:],
         nb.float64[:],
         nb.float64,
@@ -141,6 +150,7 @@ def calculate_g20(hist: NDArray[np.int64], bpp: float) -> float:
 )
 def label_gen(
     n: int,
+    pulse_width_ns,
     T_ns: float,
     lifetime_ns: float,
     eff_1s: NDArray[np.float64],
@@ -154,8 +164,8 @@ def label_gen(
     seed_env(seed)
 
     for i in prange(length):  # type: ignore
-        t_1 = calculate_arrival_times(n, T_ns, eff_1s[i], lifetime_ns)
-        t_2 = calculate_arrival_times(n, T_ns, eff_2s[i], lifetime_ns)
+        t_1 = calculate_arrival_times(n, pulse_width_ns, T_ns, eff_1s[i], lifetime_ns)
+        t_2 = calculate_arrival_times(n, pulse_width_ns, T_ns, eff_2s[i], lifetime_ns)
         t_1, t_2 = get_arrival_times_at_detectors(t_1, t_2)
         taus = calculate_taus(t_1, t_2, half_int_ns)
         hist, bpp = get_histogram_and_bpp(taus, T_ns, bins)
@@ -169,6 +179,7 @@ def label_gen(
         nb.int64,
         nb.float64,
         nb.float64,
+        nb.float64,
         nb.float64[:],
         nb.float64[:],
         nb.float64,
@@ -179,6 +190,7 @@ def label_gen(
 )
 def input_gen(
     n: int,
+    pulse_width_ns,
     T_ns: float,
     lifetime_ns: float,
     eff_1s: NDArray[np.float64],
@@ -192,8 +204,8 @@ def input_gen(
     seed_env(seed)
 
     for i in prange(length):  # type: ignore
-        t_1 = calculate_arrival_times(n, T_ns, eff_1s[i], lifetime_ns)
-        t_2 = calculate_arrival_times(n, T_ns, eff_2s[i], lifetime_ns)
+        t_1 = calculate_arrival_times(n, pulse_width_ns, T_ns, eff_1s[i], lifetime_ns)
+        t_2 = calculate_arrival_times(n, pulse_width_ns, T_ns, eff_2s[i], lifetime_ns)
         t_1, t_2 = get_arrival_times_at_detectors(t_1, t_2)
         taus = calculate_taus(t_1, t_2, half_int_ns)
         hist, _ = get_histogram_and_bpp(taus, T_ns, bins)
