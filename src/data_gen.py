@@ -6,8 +6,10 @@ from dlasrm import (
     EFF_1S,
     EFF_2S,
     HALF_INT_NS,
+    INPUTS_N,
     LABELS_N,
     LIFETIME_NS,
+    SECONDARY_EMISS_PROBA,
     SEEDS,
     T_NS,
     PUlSE_WIDTH_NS,
@@ -19,8 +21,9 @@ if __name__ == "__main__":
     create_database(name=DB_NAME)
     for seed in SEEDS:
         inputs = input_gen(
-            4_000,
+            INPUTS_N,
             PUlSE_WIDTH_NS,
+            SECONDARY_EMISS_PROBA,
             T_NS,
             LIFETIME_NS,
             EFF_1S,
@@ -31,7 +34,6 @@ if __name__ == "__main__":
         ).astype(np.float32)
         labels = label_gen(
             LABELS_N,
-            PUlSE_WIDTH_NS,
             T_NS,
             LIFETIME_NS,
             EFF_1S,

@@ -6,7 +6,9 @@ from dlasrm import (
     EFF_1S,
     EFF_2S,
     HALF_INT_NS,
+    INPUTS_N,
     LIFETIME_NS,
+    SECONDARY_EMISS_PROBA,
     SEEDS,
     T_NS,
     PUlSE_WIDTH_NS,
@@ -17,8 +19,9 @@ from dlasrm.simulation import input_gen
 if __name__ == "__main__":
     for seed in SEEDS:
         inputs = input_gen(
-            4_000,
+            INPUTS_N,
             PUlSE_WIDTH_NS,
+            SECONDARY_EMISS_PROBA,
             T_NS,
             LIFETIME_NS,
             EFF_1S,
