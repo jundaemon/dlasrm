@@ -3,7 +3,7 @@ from torch.nn import LSTM, Linear, MSELoss, Sequential
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
 
-from dlasrm import BINS, DB_NAME, DEVICE, TOTAL_SAMPLES
+from dlasrm import BINS, DB_NAME_2, DEVICE, TOTAL_SAMPLES
 from dlasrm.architecture import Architecture, LSTMBridge
 from dlasrm.data import preprocess_data, retrieve_samples, seed_training_env
 from dlasrm.evaluation import MAE
@@ -57,7 +57,7 @@ def objective(
 
 
 if __name__ == "__main__":
-    X, y = retrieve_samples(name=DB_NAME, rows=TOTAL_SAMPLES, cols=BINS)
+    X, y = retrieve_samples(name=DB_NAME_2, rows=TOTAL_SAMPLES, cols=BINS)
     train_loader, validation_loader, _, _ = preprocess_data(X, y)
 
     study = create_study(direction="minimize")
@@ -73,10 +73,3 @@ if __name__ == "__main__":
     print(f"best num_layers: {study.best_params['num_layers']}")
     print(f"best number of epochs: {study.best_params['epochs']}")
     print(f"lowest mae: {study.best_value}")
-    # study results
-    # best learning rate: 1.2670854628207467e-05
-    # best weight decay: 1.8843499597364298e-05
-    # best hidden_size: 1_024
-    # best num_layers: 3
-    # best number of epochs: 88
-    # lowest mae: 0.0098356232047081

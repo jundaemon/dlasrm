@@ -44,6 +44,8 @@ def calculate_arrival_times_noiseless(
         )
 
 
+# average 28 secondary emissions per 1_000 events
+# with pulse width = 1ns and secondary emission probability = 0.1
 @njit(
     nb.float64[:](nb.int64, nb.float64, nb.float64, nb.float64, nb.float64, nb.float64)
 )
@@ -71,7 +73,9 @@ def calculate_arrival_times_with_noise(
         )
 
     emiss_time = steps * T_ns + emiss_dur
-    temp_time = steps * np.where(noise_proba <= 0.1, 1, 0) * T_ns + noise_dur
+    temp_time = (
+        steps * np.where(noise_proba <= secondary_emiss_proba, 1, 0) * T_ns + noise_dur
+    )
     noise_time = temp_time[temp_time != 0]
 
     return np.sort(np.concat((emiss_time, noise_time)))

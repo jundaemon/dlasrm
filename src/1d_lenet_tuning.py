@@ -71,7 +71,7 @@ if __name__ == "__main__":
     print(f"best weight decay: {study.best_params['weight_decay']}")
     print(f"best number of epochs: {study.best_params['epochs']}")
     print(f"lowest mae: {study.best_value}")
-    # best learning rate: 0.0002994874569402002
-    # best weight decay: 1.0149307261903657e-05
-    # best number of epochs: 71
-    # lowest mae: 0.00965634174644947
+    # best learning rate: 0.0007099080374095783
+    # best weight decay: 0.0002729919571158144
+    # best number of epochs: 55
+    # lowest mae: 0.012607704848051071

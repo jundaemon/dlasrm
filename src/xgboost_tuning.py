@@ -58,9 +58,9 @@ if __name__ == "__main__":
     print(f"best subsample: {study.best_params['subsample']}")
     print(f"best colsample_bytree: {study.best_params['colsample_bytree']}")
     print(f"lowest mae: {study.best_value}")
-    # best n_estimators: 2890
-    # best lr: 0.009651414673966265
-    # best max_depth: 10
+    # best n_estimators: 2978
+    # best lr: 0.008260172261107921
+    # best max_depth: 9
     # best subsample: 0.7
     # best colsample_bytree: 0.7
-    # lowest mae: 0.010152874514460564
+    # lowest mae: 0.012995246797800064

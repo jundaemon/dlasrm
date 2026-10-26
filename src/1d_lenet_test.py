@@ -23,11 +23,11 @@ if __name__ == "__main__":
         loss_fn=MSELoss(),
         optimizer=AdamW(
             params=model.parameters(),
-            lr=0.0003,
-            weight_decay=1e-5,
+            lr=0.0007,
+            weight_decay=0.0003,
         ),
         eval_metric=MAE(),
-        epochs=60,
+        epochs=41,
     )
     train_mae, validation_mae = architecture.train(train_loader, validation_loader)
 
@@ -39,4 +39,4 @@ if __name__ == "__main__":
     )
     print(f"\ntest mae: {architecture.evaluate(X_test, y_test)}")
     architecture.save_model(path="weights/1d_lenet.pth")
-    # test mae: 0.009652153588831425
+    # test mae: 0.012548411265015602
