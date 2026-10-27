@@ -1,7 +1,9 @@
 import numpy as np
 
 from dlasrm import (
+    BACKGROUND_RATIO,
     BINS,
+    DARK_COUNT_RATE_NS,
     DB_NAME,
     EFF_1S,
     EFF_2S,
@@ -9,7 +11,6 @@ from dlasrm import (
     INPUTS_N,
     LIFETIME_NS,
     PULSE_WIDTH_NS,
-    SECONDARY_EMISS_PROBA,
     SEEDS,
     T_NS,
 )
@@ -20,8 +21,9 @@ if __name__ == "__main__":
     for seed in SEEDS:
         inputs = input_gen(
             INPUTS_N,
+            DARK_COUNT_RATE_NS,
+            BACKGROUND_RATIO,
             PULSE_WIDTH_NS,
-            SECONDARY_EMISS_PROBA,
             T_NS,
             LIFETIME_NS,
             EFF_1S,
