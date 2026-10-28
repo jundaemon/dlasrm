@@ -50,7 +50,7 @@ if __name__ == "__main__":
     study = create_study(direction="minimize")
     study.optimize(
         lambda trial: objective(trial, X_train, y_train, X_validation, y_validation),
-        n_trials=100,
+        n_trials=50,
     )
     print(f"best n_estimators: {study.best_params['n_estimators']}")
     print(f"best lr: {study.best_params['lr']}")
@@ -58,9 +58,9 @@ if __name__ == "__main__":
     print(f"best subsample: {study.best_params['subsample']}")
     print(f"best colsample_bytree: {study.best_params['colsample_bytree']}")
     print(f"lowest mae: {study.best_value}")
-    # best n_estimators: 2978
-    # best lr: 0.008260172261107921
-    # best max_depth: 9
+    # best n_estimators: 2859
+    # best lr: 0.007715524565329934
+    # best max_depth: 8
     # best subsample: 0.7
-    # best colsample_bytree: 0.7
-    # lowest mae: 0.012995246797800064
+    # best colsample_bytree: 0.8
+    # lowest mae: 0.01682337373495102

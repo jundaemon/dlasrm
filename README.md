@@ -1,0 +1,1 @@
+This is a preliminary to my undergraduate final year project where I train various models to predict higher order correlations at zero time delay from generated arrival time data. The repository includes a simulation of ideal/non-ideal single photon emitters and detectors, data preprocessing pipelines and model training/tuning/testing utilities.

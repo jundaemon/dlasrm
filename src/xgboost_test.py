@@ -16,11 +16,11 @@ if __name__ == "__main__":
         objective="reg:squarederror",
         tree_method="hist",
         eval_metric=mean_absolute_error,
-        n_estimators=2_920,
-        learning_rate=0.008,
-        max_depth=9,
+        n_estimators=2_860,
+        learning_rate=0.0077,
+        max_depth=8,
         subsample=0.7,
-        colsample_bytree=0.7,
+        colsample_bytree=0.8,
         device=DEVICE,
         random_state=1,
     )
@@ -29,4 +29,4 @@ if __name__ == "__main__":
 
     pred = model.predict(X_test)
     print(f"test mae: {mean_absolute_error(y_test, pred)}")
-    # test mae: 0.01295898575335741
+    # test mae: 0.01710924692451954

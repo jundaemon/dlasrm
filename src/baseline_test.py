@@ -12,4 +12,4 @@ if __name__ == "__main__":
         pred[i] = calculate_g20(hist.astype(np.int64), T_NS)
 
     print(f"test mae: {mean_absolute_error(y, pred)}")
-    # test mae: 0.09627816081047058
+    # test mae: 0.4001469612121582

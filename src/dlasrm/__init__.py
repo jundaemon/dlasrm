@@ -2,8 +2,8 @@ import numpy as np
 
 from dlasrm.simulation import seed_gen
 
-EFF_1S = np.repeat(np.linspace(0.005, 1.0, 200), 200)
-EFF_2S = EFF_1S.reshape(200, 200).T.ravel()
+EFF_1S = np.repeat(np.linspace(0.01, 1.0, 100), 100)
+EFF_2S = EFF_1S.reshape(100, 100).T.ravel()
 LABELS_N = 300_000
 INPUTS_N = 3_000
 DARK_COUNT_RATE_NS = 2e-7

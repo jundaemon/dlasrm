@@ -1,5 +1,6 @@
 import numba as nb
 import numpy as np
+from matplotlib import pyplot as plt
 from numba import njit, prange, void
 from numba.types import Tuple  # type: ignore
 from numpy.random import randint, seed
@@ -27,7 +28,7 @@ def seed_gen(size: int) -> NDArray[np.int64]:
 
 
 @njit(nb.float64[:](nb.int64, nb.float64))
-def calculate_emiss_dur(n: int, lifetime_ns: float) -> NDArray[np.float64]:
+def calculate_emiss_durs(n: int, lifetime_ns: float) -> NDArray[np.float64]:
     return np.log(np.random.random(n)) * -lifetime_ns
 
 
@@ -47,9 +48,9 @@ def calculate_laser_pulse_times(n: int, T_ns: float, eff: float) -> NDArray[np.f
 
 @njit(nb.float64[:](nb.float64[:], nb.float64[:]))
 def calculate_emiss_times(
-    emiss_dur: NDArray[np.float64], laser_pulse_times: NDArray[np.float64]
+    emiss_durs: NDArray[np.float64], laser_pulse_times: NDArray[np.float64]
 ) -> NDArray[np.float64]:
-    return laser_pulse_times + emiss_dur
+    return laser_pulse_times + emiss_durs
 
 
 # ~1 dark count per 15_000 events with dark count rate = 200/s, laser pulse period = 50ns, emitter efficiency = 1, lifetime = 3ns
@@ -69,30 +70,27 @@ def calculate_background_times(
     laser_pulse_to_background = np.random.choice(
         laser_pulse_times, int(len(laser_pulse_times) * ratio), False
     )
-    background_emiss_dur = np.log(np.random.random(len(laser_pulse_to_background)))
-    return laser_pulse_to_background + background_emiss_dur
+    background_emiss_durs = np.log(np.random.random(len(laser_pulse_to_background)))
+    return laser_pulse_to_background + background_emiss_durs
 
 
 # ~5 secondary emissions per 100 events with laser pulse period = 50ns, laser pulse width = 1ns, lifetime = 3ns
 @njit(nb.float64[:](nb.float64[:], nb.float64[:], nb.float64, nb.float64))
 def calculate_secondary_emiss_times(
-    emiss_dur: NDArray[np.float64],
+    emiss_durs: NDArray[np.float64],
     laser_pulse_times: NDArray[np.float64],
     pulse_width_ns: float,
     lifetime_ns: float,
 ) -> NDArray[np.float64]:
-    diff = pulse_width_ns - emiss_dur
+    diff = pulse_width_ns - emiss_durs
     time_left = np.where(diff > 0, diff, 0)
-    print(time_left)
-    pot_secondary_emiss_dur = np.log(np.random.random(len(emiss_dur))) * -lifetime_ns
-    print(pot_secondary_emiss_dur)
-    secondary_emiss_dur = np.where(
-        pot_secondary_emiss_dur <= time_left, pot_secondary_emiss_dur, 0
+    pot_secondary_emiss_durs = np.log(np.random.random(len(emiss_durs))) * -lifetime_ns
+    secondary_emiss_durs = np.where(
+        pot_secondary_emiss_durs <= time_left, pot_secondary_emiss_durs, 0
     )
-    print(secondary_emiss_dur)
     secondary_emiss_times = (
-        laser_pulse_times * np.where(secondary_emiss_dur != 0, 1, 0)
-        + secondary_emiss_dur
+        laser_pulse_times * np.where(secondary_emiss_durs != 0, 1, 0)
+        + secondary_emiss_durs
     )
 
     return secondary_emiss_times[secondary_emiss_times != 0]
@@ -218,12 +216,12 @@ def label_gen(
     seed_env(seed)
 
     for i in prange(length):  # type: ignore
-        emiss_dur_1 = calculate_emiss_dur(n, lifetime_ns)
-        emiss_dur_2 = calculate_emiss_dur(n, lifetime_ns)
+        emiss_durs_1 = calculate_emiss_durs(n, lifetime_ns)
+        emiss_durs_2 = calculate_emiss_durs(n, lifetime_ns)
         laser_pulse_times_1 = calculate_laser_pulse_times(n, T_ns, eff_1s[i])
         laser_pulse_times_2 = calculate_laser_pulse_times(n, T_ns, eff_2s[i])
-        t_1 = calculate_emiss_times(emiss_dur_1, laser_pulse_times_1)
-        t_2 = calculate_emiss_times(emiss_dur_2, laser_pulse_times_2)
+        t_1 = calculate_emiss_times(emiss_durs_1, laser_pulse_times_1)
+        t_2 = calculate_emiss_times(emiss_durs_2, laser_pulse_times_2)
         t_1, t_2 = get_arrival_times_at_detectors(t_1, t_2)
         taus = calculate_taus(t_1, t_2, half_int_ns)
         hist, bpp = get_histogram_and_bpp(taus, T_ns, bins)
@@ -266,28 +264,32 @@ def input_gen(
     seed_env(seed)
 
     for i in prange(length):  # type: ignore
-        emiss_dur_1 = calculate_emiss_dur(n, lifetime_ns)
-        emiss_dur_2 = calculate_emiss_dur(n, lifetime_ns)
+        emiss_durs_1 = calculate_emiss_durs(n, lifetime_ns)
+        emiss_durs_2 = calculate_emiss_durs(n, lifetime_ns)
         laser_pulse_times_1 = calculate_laser_pulse_times(n, T_ns, eff_1s[i])
         laser_pulse_times_2 = calculate_laser_pulse_times(n, T_ns, eff_2s[i])
-        t_1 = calculate_emiss_times(emiss_dur_1, laser_pulse_times_1)
-        t_2 = calculate_emiss_times(emiss_dur_2, laser_pulse_times_2)
-        dark_counts_1 = calculate_dark_count_times(t_1, dark_count_rate_ns)
-        dark_counts_2 = calculate_dark_count_times(t_2, dark_count_rate_ns)
-        background_1 = calculate_background_times(laser_pulse_times_1, background_ratio)
-        background_2 = calculate_background_times(laser_pulse_times_2, background_ratio)
-        secondary_emiss_1 = calculate_secondary_emiss_times(
-            emiss_dur_1, laser_pulse_times_1, pulse_width_ns, lifetime_ns
+        t_1 = calculate_emiss_times(emiss_durs_1, laser_pulse_times_1)
+        t_2 = calculate_emiss_times(emiss_durs_2, laser_pulse_times_2)
+        dark_count_times_1 = calculate_dark_count_times(t_1, dark_count_rate_ns)
+        dark_count_times_2 = calculate_dark_count_times(t_2, dark_count_rate_ns)
+        background_times_1 = calculate_background_times(
+            laser_pulse_times_1, background_ratio
         )
-        secondary_emiss_2 = calculate_secondary_emiss_times(
-            emiss_dur_2, laser_pulse_times_2, pulse_width_ns, lifetime_ns
+        background_times_2 = calculate_background_times(
+            laser_pulse_times_2, background_ratio
         )
-        t_1 = incorp_noise(t_1, dark_counts_1)
-        t_2 = incorp_noise(t_2, dark_counts_2)
-        t_1 = incorp_noise(t_1, background_1)
-        t_2 = incorp_noise(t_2, background_2)
-        t_1 = incorp_noise(t_1, secondary_emiss_1)
-        t_2 = incorp_noise(t_2, secondary_emiss_2)
+        secondary_emiss_times_1 = calculate_secondary_emiss_times(
+            emiss_durs_1, laser_pulse_times_1, pulse_width_ns, lifetime_ns
+        )
+        secondary_emiss_times_2 = calculate_secondary_emiss_times(
+            emiss_durs_2, laser_pulse_times_2, pulse_width_ns, lifetime_ns
+        )
+        t_1 = incorp_noise(t_1, dark_count_times_1)
+        t_2 = incorp_noise(t_2, dark_count_times_2)
+        t_1 = incorp_noise(t_1, background_times_1)
+        t_2 = incorp_noise(t_2, background_times_2)
+        t_1 = incorp_noise(t_1, secondary_emiss_times_1)
+        t_2 = incorp_noise(t_2, secondary_emiss_times_2)
         t_1, t_2 = get_arrival_times_at_detectors(t_1, t_2)
         taus = calculate_taus(t_1, t_2, half_int_ns)
         hist, _ = get_histogram_and_bpp(taus, T_ns, bins)
