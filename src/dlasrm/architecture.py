@@ -98,7 +98,7 @@ class Architecture:
                     if trial.should_prune():
                         raise TrialPruned()
 
-        return train_metrics[: i + 1], validation_metrics[: i + 1]
+        return train_metrics[: i + 1], validation_metrics[: i + 1]  # type: ignore
 
     def save_model(self, path: str) -> None:
         save(self.model.state_dict(), path)

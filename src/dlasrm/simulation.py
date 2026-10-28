@@ -1,6 +1,5 @@
 import numba as nb
 import numpy as np
-from matplotlib import pyplot as plt
 from numba import njit, prange, void
 from numba.types import Tuple  # type: ignore
 from numpy.random import randint, seed

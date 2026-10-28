@@ -116,7 +116,7 @@ def train_validation_test_split(
         X_temp, y_temp, test_size=int(length * test_ratio), shuffle=True, random_state=1
     )
 
-    return X_train, y_train, X_validation, y_validation, X_test, y_test
+    return X_train, y_train, X_validation, y_validation, X_test, y_test  # type: ignore
 
 
 def convert_to_tensors(
